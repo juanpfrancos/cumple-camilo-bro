@@ -1,0 +1,929 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Segunda Pista — Camilo 🌹</title>
+  <meta name="description" content="Segunda pista de la aventura especial de cumpleaños para Camilo." />
+
+  <!-- Favicons -->
+  <link rel="apple-touch-icon" sizes="180x180" href="./assets/apple-touch-icon.png" />
+  <link rel="icon" type="image/png" sizes="32x32" href="./assets/favicon-32x32.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="./assets/favicon-16x16.png" />
+  <link rel="manifest" href="./assets/site.webmanifest" />
+  <link rel="shortcut icon" href="./assets/favicon.ico" />
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Lato:wght@300;400;700&display=swap" rel="stylesheet" />
+
+  <!-- GSAP -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --gold: #f5c842;
+      --gold-light: #ffe9a0;
+      --rose: #e8607a;
+      --rose-light: #f9a8b8;
+      --sage: #8ab89a;
+      --text-light: #f0e8d5;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Lato', sans-serif;
+      background: #0d1b3e;
+      color: var(--text-light);
+      overflow-x: hidden;
+      min-height: 100vh;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+
+    #stars-canvas {
+      position: fixed; inset: 0;
+      width: 100%; height: 100%;
+      pointer-events: none; z-index: 0;
+    }
+
+    #sparkle-canvas {
+      position: fixed; inset: 0;
+      width: 100%; height: 100%;
+      pointer-events: none; z-index: 100;
+    }
+
+    .gradient-overlay {
+      position: fixed; inset: 0;
+      background: radial-gradient(ellipse at 70% 30%, rgba(41,61,24,0.18) 0%, transparent 60%);
+      pointer-events: none; z-index: 0;
+      animation: shiftGradient 10s ease-in-out infinite alternate;
+    }
+    @keyframes shiftGradient {
+      from { opacity: 0.5; transform: scale(1); }
+      to   { opacity: 1;   transform: scale(1.08); }
+    }
+
+    /* ===== HERO ===== */
+    .hero {
+      position: relative;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 48px 24px 64px;
+      overflow: hidden;
+      background: linear-gradient(175deg,
+        #060d20 0%, #0d1b3e 25%, #1a2e1a 55%, #2a3d18 75%, #1e3320 100%
+      );
+    }
+
+    .planet-glow {
+      position: absolute;
+      bottom: -130px; left: 50%;
+      transform: translateX(-50%);
+      width: 520px; height: 520px;
+      border-radius: 50%;
+      background: radial-gradient(ellipse at 40% 30%,
+        #2a4a2a 0%, #1a3020 40%, #0d1f0d 70%, #060f06 100%
+      );
+      box-shadow: 0 0 80px 30px rgba(80,160,80,0.13), 0 0 200px 60px rgba(40,100,40,0.07);
+      z-index: 1;
+    }
+
+    .moon {
+      position: absolute;
+      top: 8%; right: 8%;
+      width: 60px; height: 60px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 35%, #fffbe8, #f5d87a);
+      box-shadow: 0 0 30px 8px rgba(245,200,66,0.3), 0 0 60px 15px rgba(245,200,66,0.1);
+      z-index: 2; cursor: pointer;
+    }
+
+    /* Pista number badge */
+    .pista-badge {
+      position: absolute;
+      top: 20px; left: 50%;
+      transform: translateX(-50%);
+      background: rgba(245,200,66,0.1);
+      border: 1px solid rgba(245,200,66,0.3);
+      border-radius: 40px;
+      padding: 6px 20px;
+      font-size: 11px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: rgba(245,200,66,0.7);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      z-index: 10;
+      opacity: 0;
+    }
+
+    .star-deco {
+      position: absolute;
+      border-radius: 50%;
+      background: var(--gold-light);
+      z-index: 2;
+      box-shadow: 0 0 6px 2px rgba(255,233,160,0.6);
+    }
+
+    .hero-content {
+      position: relative; z-index: 10;
+      display: flex; flex-direction: column;
+      align-items: center;
+      width: 100%; max-width: 480px;
+    }
+
+    /* ===== QUOTE ===== */
+    .quote-banner {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(138,184,154,0.25);
+      border-radius: 20px;
+      padding: 18px 24px;
+      text-align: center;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      margin-bottom: 32px;
+      opacity: 0;
+      cursor: pointer;
+      transition: border-color 0.3s, background 0.3s;
+    }
+    .quote-banner:hover, .quote-banner.touched {
+      border-color: rgba(138,184,154,0.55);
+      background: rgba(255,255,255,0.09);
+    }
+    .quote-banner p {
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
+      font-size: clamp(15px,4vw,18px);
+      color: var(--gold-light);
+      line-height: 1.65;
+    }
+    .quote-mark {
+      font-size: 2em; color: var(--sage);
+      opacity: 0.8; line-height: 0;
+      vertical-align: -0.25em;
+    }
+
+    /* ===== CHARACTER ===== */
+    .character-wrapper {
+      position: relative;
+      width: 300px; height: 300px;
+      margin-bottom: 18px; opacity: 0;
+      cursor: pointer;
+      filter: drop-shadow(0 0 18px rgba(138,184,154,0.4))
+              drop-shadow(0 8px 32px rgba(60,120,60,0.3));
+      transition: filter 0.3s;
+    }
+    .character-wrapper:active {
+      filter: drop-shadow(0 0 30px rgba(138,184,154,0.7))
+              drop-shadow(0 8px 42px rgba(60,120,60,0.5));
+    }
+
+    .character-frame {
+      position: relative;
+      width: 100%; height: 100%;
+      border-radius: 22px; padding: 6px;
+      background: linear-gradient(145deg,
+        rgba(138,184,154,0.6) 0%,
+        rgba(245,200,66,0.35) 35%,
+        rgba(232,96,122,0.25) 65%,
+        rgba(138,184,154,0.6) 100%
+      );
+      animation: shimmerBorderGreen 4s ease-in-out infinite alternate;
+    }
+    @keyframes shimmerBorderGreen {
+      0%   { box-shadow: 0 0 0 2px rgba(138,184,154,0.6), 0 0 22px 5px rgba(138,184,154,0.18); }
+      50%  { box-shadow: 0 0 0 2px rgba(245,200,66,0.55), 0 0 28px 8px rgba(245,200,66,0.2); }
+      100% { box-shadow: 0 0 0 2px rgba(138,184,154,0.6), 0 0 22px 5px rgba(138,184,154,0.18); }
+    }
+
+    .character-frame img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      border-radius: 18px;
+      display: block;
+      pointer-events: none;
+    }
+
+    .character-frame::before,
+    .character-frame::after {
+      content: '✦';
+      position: absolute;
+      font-size: 14px; color: var(--sage);
+      opacity: 0.95; z-index: 5;
+      text-shadow: 0 0 8px rgba(138,184,154,0.9);
+    }
+    .character-frame::before { top: -8px; left: -8px; }
+    .character-frame::after  { bottom: -8px; right: -8px; }
+
+    .pulse-glow {
+      position: absolute; inset: -20px;
+      border-radius: 30px;
+      background: radial-gradient(ellipse, rgba(138,184,154,0.13) 0%, transparent 70%);
+      animation: pulseGlow 3s ease-in-out infinite;
+      z-index: -1;
+    }
+    @keyframes pulseGlow {
+      0%, 100% { opacity: 0.6; transform: scale(1); }
+      50%       { opacity: 1;   transform: scale(1.05); }
+    }
+
+    /* ===== HERO TEXT ===== */
+    .rose-float {
+      position: absolute;
+      font-size: clamp(20px,5vw,28px);
+      animation: floatRose 4s ease-in-out infinite;
+      z-index: 2; cursor: pointer;
+    }
+    @keyframes floatRose {
+      0%, 100% { transform: translateY(0) rotate(-5deg); }
+      50%       { transform: translateY(-12px) rotate(5deg); }
+    }
+
+    .hero-heading {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(36px,10vw,54px);
+      font-weight: 700; text-align: center;
+      background: linear-gradient(135deg, var(--sage) 0%, var(--gold-light) 50%, var(--gold) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      line-height: 1.2; margin-bottom: 6px;
+      opacity: 0; cursor: pointer;
+    }
+
+    .hero-sub {
+      font-size: clamp(12px,3.5vw,15px);
+      color: rgba(240,232,213,0.55);
+      letter-spacing: 3px; text-transform: uppercase;
+      text-align: center; margin-bottom: 28px;
+      opacity: 0;
+    }
+
+    /* ===== SCROLL HINT ===== */
+    .scroll-hint {
+      display: flex; flex-direction: column;
+      align-items: center; gap: 8px;
+      margin-top: 16px; opacity: 0; cursor: pointer;
+    }
+    .scroll-hint span {
+      font-size: 12px; letter-spacing: 2px;
+      text-transform: uppercase; color: rgba(255,255,255,0.38);
+    }
+    .scroll-arrow {
+      width: 26px; height: 26px;
+      border-right: 2px solid rgba(138,184,154,0.55);
+      border-bottom: 2px solid rgba(138,184,154,0.55);
+      transform: rotate(45deg);
+      animation: bounceArrow 1.5s ease-in-out infinite;
+    }
+    @keyframes bounceArrow {
+      0%, 100% { transform: rotate(45deg) translateY(0);   opacity: 0.5; }
+      50%       { transform: rotate(45deg) translateY(6px); opacity: 1; }
+    }
+
+    /* ===== DIVIDER ===== */
+    .divider {
+      display: flex; align-items: center;
+      justify-content: center; gap: 16px;
+      padding: 10px 24px;
+      position: relative; z-index: 5;
+    }
+    .divider-line {
+      flex: 1; max-width: 100px; height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(138,184,154,0.4), transparent);
+    }
+    .divider-rose {
+      font-size: 20px;
+      animation: spinSlow 8s linear infinite;
+      cursor: pointer;
+    }
+    @keyframes spinSlow {
+      from { transform: rotate(0deg); }
+      to   { transform: rotate(360deg); }
+    }
+
+    /* ===== MESSAGE SECTION ===== */
+    .message-section {
+      position: relative; z-index: 5;
+      padding: 20px 24px 60px;
+      display: flex; flex-direction: column;
+      align-items: center; gap: 28px;
+      background: linear-gradient(180deg,
+        rgba(13,27,13,0) 0%,
+        rgba(6,16,6,0.95) 15%,
+        rgba(4,12,4,0.98) 60%,
+        rgba(8,15,8,0.98) 100%
+      );
+    }
+
+    /* ===== CARDS ===== */
+    .message-card {
+      width: 100%; max-width: 480px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(138,184,154,0.18);
+      border-radius: 24px; padding: 32px 28px;
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      position: relative; overflow: hidden;
+      opacity: 0; transform: translateY(30px);
+      cursor: pointer; transition: border-color 0.3s, transform 0.15s;
+    }
+    .message-card:active { transform: scale(0.985); }
+    .message-card::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; height: 2px;
+      background: linear-gradient(90deg,
+        transparent, rgba(138,184,154,0.7), rgba(245,200,66,0.5), transparent
+      );
+    }
+
+    .card-icon { font-size: 32px; margin-bottom: 16px; display: block; }
+
+    .card-text {
+      font-size: clamp(15px,4vw,17px);
+      line-height: 1.85; color: rgba(240,232,213,0.9);
+    }
+    .name-highlight {
+      font-family: 'Playfair Display', serif;
+      font-weight: 700; font-size: 1.1em;
+      background: linear-gradient(90deg, var(--sage), var(--gold-light));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* ===== CLUE CARD ===== */
+    .clue-card {
+      width: 100%; max-width: 480px;
+      background: linear-gradient(135deg,
+        rgba(20,45,20,0.55) 0%, rgba(12,30,12,0.75) 100%
+      );
+      border: 1px solid rgba(138,184,154,0.35);
+      border-radius: 24px; padding: 32px 28px;
+      position: relative; overflow: hidden;
+      opacity: 0; transform: translateY(30px);
+      cursor: pointer; transition: border-color 0.3s, transform 0.15s;
+    }
+    .clue-card:active { transform: scale(0.985); }
+    .clue-card::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; height: 2px;
+      background: linear-gradient(90deg,
+        transparent, var(--sage), var(--gold-light), transparent
+      );
+    }
+
+    .clue-title {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(20px,5vw,24px);
+      color: var(--gold); margin-bottom: 18px;
+      display: flex; align-items: center; gap: 10px;
+    }
+
+    .clue-body {
+      font-size: clamp(14px,3.8vw,16px);
+      line-height: 1.9; color: rgba(240,232,213,0.88);
+    }
+
+    .destination-highlight {
+      display: inline-block;
+      font-family: 'Playfair Display', serif;
+      font-weight: 700; font-size: 1.05em;
+      color: var(--sage);
+      border-bottom: 1px dashed rgba(138,184,154,0.55);
+      padding-bottom: 2px;
+    }
+
+    /* ===== LOCATION CARD ===== */
+    .location-card {
+      width: 100%; max-width: 480px;
+      background: linear-gradient(135deg,
+        rgba(30,50,20,0.5) 0%, rgba(15,30,10,0.7) 100%
+      );
+      border: 1px solid rgba(245,200,66,0.22);
+      border-radius: 24px; padding: 28px;
+      position: relative; overflow: hidden;
+      opacity: 0; transform: translateY(30px);
+      cursor: pointer; transition: transform 0.15s;
+    }
+    .location-card:active { transform: scale(0.985); }
+    .location-card::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; height: 2px;
+      background: linear-gradient(90deg,
+        transparent, rgba(245,200,66,0.6), rgba(138,184,154,0.5), transparent
+      );
+    }
+    .location-title {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(15px,4vw,18px);
+      color: var(--gold-light); margin-bottom: 10px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .location-body {
+      font-size: clamp(13px,3.5vw,15px);
+      line-height: 1.8; color: rgba(240,232,213,0.8);
+    }
+
+    /* ===== DAY BADGE ===== */
+    .day-badge {
+      display: flex; align-items: center;
+      justify-content: center; gap: 14px;
+      background: linear-gradient(135deg,
+        rgba(138,184,154,0.14) 0%, rgba(245,200,66,0.08) 100%
+      );
+      border: 1px solid rgba(138,184,154,0.3);
+      border-radius: 60px; padding: 14px 28px;
+      opacity: 0; transform: scale(0.9);
+      cursor: pointer; transition: transform 0.15s;
+    }
+    .day-badge:active { transform: scale(0.94); }
+    .day-badge .day-icon { font-size: 28px; }
+    .day-badge .day-text {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(16px,4.5vw,20px);
+      color: var(--gold-light);
+    }
+    .day-badge .day-label {
+      font-size: 11px; letter-spacing: 2px;
+      text-transform: uppercase;
+      color: rgba(138,184,154,0.55); display: block;
+    }
+
+    /* ===== FOOTER ===== */
+    .footer {
+      position: relative; z-index: 5;
+      padding: 30px 24px 50px; text-align: center;
+    }
+    @supports (padding-bottom: env(safe-area-inset-bottom)) {
+      .footer { padding-bottom: calc(50px + env(safe-area-inset-bottom)); }
+    }
+    .footer-quote {
+      font-family: 'Playfair Display', serif; font-style: italic;
+      font-size: clamp(13px,3.5vw,15px);
+      color: rgba(240,232,213,0.32);
+      max-width: 340px; margin: 0 auto 16px; line-height: 1.7;
+    }
+    .footer-stars {
+      font-size: 20px; letter-spacing: 8px;
+      color: rgba(138,184,154,0.4);
+    }
+
+    /* ===== FX ===== */
+    .shooting-star {
+      position: fixed; width: 2px; height: 2px;
+      background: white; border-radius: 50%;
+      pointer-events: none; z-index: 1;
+    }
+    .shooting-star::after {
+      content: ''; position: absolute; top: 0; right: 0;
+      width: 80px; height: 1px;
+      background: linear-gradient(90deg, transparent, white);
+      transform: translateX(100%);
+    }
+    .petal {
+      position: fixed; font-size: 14px;
+      pointer-events: none; z-index: 2; opacity: 0;
+    }
+    .ripple {
+      position: fixed; border-radius: 50%;
+      border: 1.5px solid rgba(138,184,154,0.65);
+      pointer-events: none; z-index: 90;
+      transform: scale(0); opacity: 1;
+    }
+
+    /* ===== AUDIO BUTTON ===== */
+    #audio-btn {
+      position: fixed;
+      bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+      right: 20px; z-index: 9999;
+      width: 52px; height: 52px; border-radius: 50%;
+      background: linear-gradient(135deg, rgba(138,184,154,0.22), rgba(245,200,66,0.18));
+      border: 1.5px solid rgba(138,184,154,0.4);
+      backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; box-shadow: 0 0 18px rgba(138,184,154,0.18);
+      transition: transform 0.2s, box-shadow 0.2s, opacity 0.3s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    #audio-btn:active { transform: scale(0.9); }
+    #audio-icon { font-size: 22px; }
+
+    @keyframes twinkle {
+      0%, 100% { opacity: 0.3; transform: scale(1); }
+      50%       { opacity: 1;   transform: scale(1.5); }
+    }
+
+    @media (max-width: 390px) {
+      .character-wrapper { width: 250px; height: 250px; }
+      .message-card, .clue-card, .location-card { padding: 26px 20px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Background Audio -->
+  <audio id="bg-audio" src="./assets/Turnaround.mp3" loop preload="auto"></audio>
+
+  <!-- Audio Button -->
+  <div id="audio-btn" title="Música" onclick="toggleAudio()">
+    <span id="audio-icon">🎵</span>
+  </div>
+
+  <!-- Sparkle canvas -->
+  <canvas id="sparkle-canvas"></canvas>
+
+  <!-- Stars canvas -->
+  <canvas id="stars-canvas"></canvas>
+
+  <!-- Gradient overlay -->
+  <div class="gradient-overlay"></div>
+
+  <!-- ===== HERO ===== -->
+  <section class="hero" id="hero">
+    <div class="planet-glow"></div>
+    <div class="moon" id="moon"></div>
+
+    <!-- Pista badge -->
+    <div class="pista-badge" id="pista-badge">✦ Pista N° 2 ✦</div>
+
+    <!-- Twinkling stars -->
+    <div class="star-deco" style="width:4px;height:4px;top:15%;left:12%;animation:twinkle 2.1s infinite;"></div>
+    <div class="star-deco" style="width:3px;height:3px;top:22%;left:25%;animation:twinkle 1.7s infinite 0.5s;"></div>
+    <div class="star-deco" style="width:5px;height:5px;top:10%;left:60%;animation:twinkle 2.5s infinite 0.3s;"></div>
+    <div class="star-deco" style="width:3px;height:3px;top:30%;right:15%;animation:twinkle 1.9s infinite 1s;"></div>
+    <div class="star-deco" style="width:4px;height:4px;top:45%;left:8%;animation:twinkle 2.3s infinite 0.8s;"></div>
+    <div class="star-deco" style="width:3px;height:3px;top:18%;right:28%;animation:twinkle 1.5s infinite 1.2s;"></div>
+
+    <!-- Floating icons -->
+    <div class="rose-float" id="rf1" style="top:20%;left:5%;animation-delay:0s;">🌿</div>
+    <div class="rose-float" id="rf2" style="top:35%;right:6%;animation-delay:1.5s;font-size:18px;">✨</div>
+    <div class="rose-float" id="rf3" style="top:60%;left:3%;animation-delay:0.8s;font-size:16px;">🌱</div>
+
+    <div class="hero-content">
+
+      <!-- Quote -->
+      <div class="quote-banner" id="quote-banner">
+        <p>
+          <span class="quote-mark">"</span>
+          Es una cuestión de disciplina... Cuando por la mañana uno termina de arreglarse, hay que hacer cuidadosamente la limpieza del planeta.
+          <span class="quote-mark">"</span>
+        </p>
+      </div>
+
+      <!-- Character -->
+      <div class="character-wrapper" id="character">
+        <div class="pulse-glow"></div>
+        <div class="character-frame">
+          <img src="./assets/02.jpeg" alt="El Principito — Pista 2" />
+        </div>
+      </div>
+
+      <!-- Heading -->
+      <h1 class="hero-heading" id="hero-heading">Camilo 🗺️</h1>
+      <p class="hero-sub" id="hero-sub">Tu segunda aventura comienza</p>
+
+      <!-- Scroll hint -->
+      <div class="scroll-hint" id="scroll-hint"
+           onclick="document.getElementById('message').scrollIntoView({behavior:'smooth'})">
+        <span>Descubre la pista</span>
+        <div class="scroll-arrow"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Divider -->
+  <div class="divider">
+    <div class="divider-line"></div>
+    <span class="divider-rose" id="divider-rose">🌿</span>
+    <div class="divider-line"></div>
+  </div>
+
+  <!-- ===== MESSAGE SECTION ===== -->
+  <section class="message-section" id="message">
+
+    <!-- Main message -->
+    <div class="message-card" id="msg-card">
+      <span class="card-icon">🏛️</span>
+      <p class="card-text">
+        Hoy toca ir a las verdaderas raíces de nuestro pequeño mundo, allí donde la ciudad comenzó y donde el ritmo diario cobra vida.
+      </p>
+    </div>
+
+    <!-- Clue card -->
+    <div class="clue-card" id="clue-card">
+      <h2 class="clue-title">🗺️ Tu Segunda Pista</h2>
+      <p class="clue-body">
+        Dirígete a la <span class="destination-highlight">plaza principal</span>, justo donde un libertador cabalga majestuoso y sin ropas, bajo la atenta mirada de la catedral.
+        <br/><br/>
+        En el <em style="color:rgba(138,184,154,0.95);">corazón histórico de Pereira</em> te espera tu siguiente pista.
+      </p>
+    </div>
+
+    <!-- Location hint -->
+    <div class="location-card" id="location-card">
+      <p class="location-title">☕ Un detalle para el camino</p>
+      <p class="location-body">
+        Mira hacia la izquierda y podrás disfrutar de un rico café mientras encuentras lo que buscas.
+      </p>
+    </div>
+
+    <!-- Day badge -->
+    <div class="day-badge" id="day-badge">
+      <span class="day-icon">📍</span>
+      <div>
+        <span class="day-label">Tu destino</span>
+        <span class="day-text">Plaza de Bolívar — Pereira</span>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- ===== FOOTER ===== -->
+  <footer class="footer">
+    <p class="footer-quote">
+      "Lo esencial es invisible a los ojos."<br/>
+      — El Principito
+    </p>
+    <div class="footer-stars">★ ★ ★</div>
+  </footer>
+
+  <script>
+  // ============================================================
+  //  STARS CANVAS
+  // ============================================================
+  (function () {
+    const canvas = document.getElementById('stars-canvas');
+    const ctx = canvas.getContext('2d');
+    let stars = [], W, H;
+
+    function resize() { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
+
+    function createStars(n) {
+      stars = [];
+      for (let i = 0; i < n; i++) {
+        stars.push({
+          x: Math.random() * W,
+          y: Math.random() * H * 0.75,
+          r: Math.random() * 1.2 + 0.2,
+          speed: Math.random() * 0.007 + 0.003,
+          phase: Math.random() * Math.PI * 2
+        });
+      }
+    }
+
+    function draw(t) {
+      ctx.clearRect(0, 0, W, H);
+      stars.forEach(s => {
+        const a = 0.4 + 0.6 * Math.abs(Math.sin(t * s.speed + s.phase));
+        ctx.beginPath();
+        ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(255,245,200,${a})`;
+        ctx.fill();
+      });
+    }
+
+    function loop(t) { draw(t * 0.001); requestAnimationFrame(loop); }
+    resize(); createStars(130); requestAnimationFrame(loop);
+    window.addEventListener('resize', () => { resize(); createStars(130); });
+  })();
+
+  // ============================================================
+  //  SPARKLE CANVAS
+  // ============================================================
+  (function () {
+    const canvas = document.getElementById('sparkle-canvas');
+    const ctx = canvas.getContext('2d');
+    let particles = [], W, H;
+
+    function resize() { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
+    resize();
+    window.addEventListener('resize', resize);
+
+    const COLORS = ['#8ab89a','#ffe9a0','#f5c842','#f9a8b8','#a8d5b5','#ffffff'];
+
+    function burst(x, y, count = 18) {
+      for (let i = 0; i < count; i++) {
+        const angle = (Math.PI * 2 / count) * i + Math.random() * 0.3;
+        const speed = 1.5 + Math.random() * 3.5;
+        particles.push({
+          x, y,
+          vx: Math.cos(angle) * speed,
+          vy: Math.sin(angle) * speed,
+          r: 1.5 + Math.random() * 3,
+          alpha: 1,
+          decay: 0.022 + Math.random() * 0.018,
+          color: COLORS[Math.floor(Math.random() * COLORS.length)],
+          type: Math.random() > 0.5 ? 'circle' : 'star'
+        });
+      }
+    }
+
+    function drawStar(cx, cy, r, color, alpha) {
+      ctx.save(); ctx.globalAlpha = alpha; ctx.fillStyle = color;
+      ctx.beginPath();
+      for (let i = 0; i < 5; i++) {
+        const a = (Math.PI * 2 / 5) * i - Math.PI / 2;
+        const x = cx + r * Math.cos(a), y = cy + r * Math.sin(a);
+        i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+      }
+      ctx.closePath(); ctx.fill(); ctx.restore();
+    }
+
+    function loop() {
+      ctx.clearRect(0, 0, W, H);
+      particles = particles.filter(p => p.alpha > 0.01);
+      particles.forEach(p => {
+        p.x += p.vx; p.y += p.vy; p.vy += 0.06; p.alpha -= p.decay;
+        const a = Math.max(0, p.alpha);
+        if (p.type === 'star') { drawStar(p.x, p.y, p.r, p.color, a); }
+        else {
+          ctx.save(); ctx.globalAlpha = a; ctx.fillStyle = p.color;
+          ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2); ctx.fill(); ctx.restore();
+        }
+      });
+      requestAnimationFrame(loop);
+    }
+    loop();
+    window._burst = burst;
+  })();
+
+  // ============================================================
+  //  RIPPLE
+  // ============================================================
+  function spawnRipple(x, y) {
+    const el = document.createElement('div');
+    el.className = 'ripple';
+    const size = 60 + Math.random() * 40;
+    el.style.cssText = `width:${size}px;height:${size}px;left:${x - size/2}px;top:${y - size/2}px;`;
+    document.body.appendChild(el);
+    gsap.to(el, { scale: 2.8, opacity: 0, duration: 0.7, ease: 'power2.out', onComplete: () => el.remove() });
+  }
+
+  // ============================================================
+  //  GLOBAL TOUCH / CLICK
+  // ============================================================
+  function onInteract(e) {
+    const touch = e.touches ? e.touches[0] : e;
+    window._burst(touch.clientX, touch.clientY, 16);
+    spawnRipple(touch.clientX, touch.clientY);
+  }
+  document.addEventListener('touchstart', onInteract, { passive: true });
+  document.addEventListener('click', onInteract);
+
+  // ============================================================
+  //  GSAP — ENTRANCE
+  // ============================================================
+  gsap.registerPlugin(ScrollTrigger);
+
+  const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
+  tl.to('#pista-badge',  { opacity: 1, duration: 0.7, delay: 0.2 })
+    .to('#quote-banner', { opacity: 1, duration: 1 }, '-=0.3')
+    .to('#character',    { opacity: 1, duration: 1, ease: 'back.out(1.4)' }, '-=0.4')
+    .to('#hero-heading', { opacity: 1, duration: 0.8 }, '-=0.3')
+    .to('#hero-sub',     { opacity: 1, duration: 0.6 }, '-=0.4')
+    .to('#scroll-hint',  { opacity: 1, duration: 0.8 }, '-=0.2');
+
+  gsap.to('#character', { y: -14, duration: 2.8, yoyo: true, repeat: -1, ease: 'sine.inOut', delay: 1.8 });
+  gsap.to('#moon',      { y: -8,  duration: 4,   yoyo: true, repeat: -1, ease: 'sine.inOut' });
+
+  gsap.to('#msg-card', {
+    opacity: 1, y: 0, duration: 0.9, ease: 'power3.out',
+    scrollTrigger: { trigger: '#msg-card', start: 'top 85%' }
+  });
+  gsap.to('#clue-card', {
+    opacity: 1, y: 0, duration: 0.9, delay: 0.12, ease: 'power3.out',
+    scrollTrigger: { trigger: '#clue-card', start: 'top 85%' }
+  });
+  gsap.to('#location-card', {
+    opacity: 1, y: 0, duration: 0.9, delay: 0.1, ease: 'power3.out',
+    scrollTrigger: { trigger: '#location-card', start: 'top 85%' }
+  });
+  gsap.to('#day-badge', {
+    opacity: 1, scale: 1, duration: 0.8, delay: 0.2, ease: 'back.out(1.6)',
+    scrollTrigger: { trigger: '#day-badge', start: 'top 88%' }
+  });
+
+  // ============================================================
+  //  BOUNCE ON TOUCH
+  // ============================================================
+  function addBounce(selector, count = 22) {
+    document.querySelectorAll(selector).forEach(el => {
+      el.addEventListener('touchstart', function() {
+        gsap.to(this, { scale: 0.93, duration: 0.1, ease: 'power2.out',
+          onComplete: () => gsap.to(this, { scale: 1, duration: 0.4, ease: 'elastic.out(1.2,0.5)' })
+        });
+        const r = this.getBoundingClientRect();
+        window._burst(r.left + r.width/2, r.top + r.height/2, count);
+      }, { passive: true });
+    });
+  }
+
+  addBounce('#quote-banner', 18);
+  addBounce('#character', 30);
+  addBounce('#msg-card', 20);
+  addBounce('#clue-card', 20);
+  addBounce('#location-card', 18);
+  addBounce('#day-badge', 24);
+  addBounce('#hero-heading', 16);
+  addBounce('.divider-rose', 20);
+  addBounce('.rose-float', 14);
+  addBounce('#moon', 24);
+
+  document.getElementById('moon').addEventListener('touchstart', function() {
+    gsap.to(this, { rotation: '+=360', duration: 0.8, ease: 'power2.out' });
+  }, { passive: true });
+
+  document.getElementById('divider-rose').addEventListener('touchstart', function() {
+    gsap.to(this, { rotation: '+=720', duration: 1, ease: 'power3.out' });
+  }, { passive: true });
+
+  // ============================================================
+  //  SHOOTING STARS
+  // ============================================================
+  function createShootingStar() {
+    const el = document.createElement('div');
+    el.className = 'shooting-star';
+    document.body.appendChild(el);
+    const startX = Math.random() * window.innerWidth * 0.6;
+    const startY = Math.random() * window.innerHeight * 0.3;
+    const angle  = 28 + Math.random() * 18;
+    const dist   = 200 + Math.random() * 160;
+    gsap.set(el, { x: startX, y: startY, opacity: 0 });
+    gsap.timeline({ onComplete: () => el.remove() })
+      .to(el, { opacity: 1, duration: 0.1 })
+      .to(el, {
+        x: startX + dist * Math.cos((angle * Math.PI) / 180),
+        y: startY + dist * Math.sin((angle * Math.PI) / 180),
+        opacity: 0, duration: 0.65, ease: 'power1.in'
+      });
+  }
+  setInterval(createShootingStar, 3500);
+  setTimeout(createShootingStar, 1200);
+
+  // ============================================================
+  //  PETALS
+  // ============================================================
+  function spawnPetal() {
+    const el = document.createElement('div');
+    el.className = 'petal';
+    el.textContent = ['🌿','✨','⭐','🌱','☕'][Math.floor(Math.random()*5)];
+    el.style.left = Math.random() * 100 + 'vw';
+    el.style.top = '-5vh';
+    document.body.appendChild(el);
+    gsap.to(el, {
+      y: window.innerHeight + 100, x: (Math.random()-0.5)*120,
+      rotation: Math.random()*360, opacity: 0.7,
+      duration: 6+Math.random()*4, ease: 'none',
+      onComplete: () => el.remove()
+    });
+    gsap.to(el, { opacity: 0.7, duration: 0.5 });
+  }
+  setInterval(spawnPetal, 2200);
+  setTimeout(spawnPetal, 400);
+  setTimeout(spawnPetal, 1100);
+
+  // ============================================================
+  //  AUDIO
+  // ============================================================
+  const audio     = document.getElementById('bg-audio');
+  const audioBtn  = document.getElementById('audio-btn');
+  const audioIcon = document.getElementById('audio-icon');
+  let isPlaying   = false;
+
+  function setPlaying(val) {
+    isPlaying = val;
+    audioIcon.textContent = val ? '🔇' : '🎵';
+    audioBtn.style.opacity = val ? '1' : '0.55';
+  }
+
+  function toggleAudio() {
+    gsap.to(audioBtn, { scale: 0.85, duration: 0.1,
+      onComplete: () => gsap.to(audioBtn, { scale: 1, duration: 0.35, ease: 'elastic.out(1.2,0.5)' })
+    });
+    if (isPlaying) { audio.pause(); setPlaying(false); }
+    else { audio.play().then(() => setPlaying(true)).catch(() => {}); }
+  }
+
+  function tryAutoplay() {
+    if (!isPlaying) audio.play().then(() => setPlaying(true)).catch(() => {});
+  }
+
+  audio.play()
+    .then(() => setPlaying(true))
+    .catch(() => {
+      document.addEventListener('touchstart', tryAutoplay, { once: true });
+      document.addEventListener('click',      tryAutoplay, { once: true });
+    });
+  </script>
+</body>
+</html>
